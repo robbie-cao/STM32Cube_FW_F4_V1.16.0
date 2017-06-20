@@ -37,6 +37,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "ili9488.h"
 
 /** @addtogroup STM32F4xx_HAL_Examples
   * @{
@@ -154,6 +155,8 @@ int main(void)
     /* Initialization Error */
     Error_Handler();
   }
+
+  ILI9488_Init();
 
   /* Infinite loop */
   while (1)

@@ -1376,6 +1376,9 @@
     <group>
       <name>User</name>
       <file>
+        <name>$PROJ_DIR$\..\Src\ili9488.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>
       </file>
       <file>
