@@ -1,6 +1,8 @@
 #ifndef ILI9488_H
 #define ILI9488_H
 
+#include "fonts.h"
+
 /**
  * @defgroup ILI9488_Macros
  * @brief    Library defines
@@ -141,7 +143,7 @@ void ILI9488_Rotate(ILI9488_Orientation_t orientation);
  * @param  background: Color for char background
  * @retval None
  */
-//void ILI9488_Putc(uint16_t x, uint16_t y, char c, FontDef_t* font, uint32_t foreground, uint32_t background);
+void ILI9488_Putc(uint16_t x, uint16_t y, char c, FontDef_t* font, uint32_t foreground, uint32_t background);
 
 /**
  * @brief  Puts string to LCD
@@ -153,7 +155,7 @@ void ILI9488_Rotate(ILI9488_Orientation_t orientation);
  * @param  background: Color for string background
  * @retval None
  */
-//void ILI9488_Puts(uint16_t x, uint16_t y, char* str, FontDef_t *font, uint32_t foreground, uint32_t background);
+void ILI9488_Puts(uint16_t x, uint16_t y, char* str, FontDef_t *font, uint32_t foreground, uint32_t background);
 
 /**
  * @brief  Gets width and height of box with text
@@ -163,7 +165,7 @@ void ILI9488_Rotate(ILI9488_Orientation_t orientation);
  * @param  *height: Pointer to variable to store height
  * @retval None
  */
-//void ILI9488_GetStringSize(char* str, FontDef_t* font, uint16_t* width, uint16_t* height);
+void ILI9488_GetStringSize(char* str, FontDef_t* font, uint16_t* width, uint16_t* height);
 
 /**
  * @brief  Draws line to LCD

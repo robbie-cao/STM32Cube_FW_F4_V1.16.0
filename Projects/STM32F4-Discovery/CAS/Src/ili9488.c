@@ -163,7 +163,6 @@ void ILI9488_InitLCD(void)
 	ILI9488_SendCommand(ILI9488_RESET);
 	ILI9488_Delay(50000);
 
-//----
 #define SPI4_CMD_8bit   ILI9488_SendCommand
 #define SPI4_DAT_8bit  ILI9488_SendData
 	SPI4_CMD_8bit(0xE0);
@@ -243,15 +242,6 @@ void ILI9488_InitLCD(void)
 	Delay(15);
 	SPI4_CMD_8bit(0x29); //Display on
 	Delay(10);
-
-//        // All pixel off
-//        ILI9488_SendCommand(0x23);
-//	Delay(10);
-//        // All pixel on
-//        ILI9488_SendCommand(0x22);
-
-        return;
-//----
 }
 
 //void ili9488_set_orientation(uint8_t flags)
@@ -341,8 +331,8 @@ void ILI9488_Fill(uint32_t color) {
 void ILI9488_INT_Fill(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint32_t color)
 {
 #if 1
-  for (uint16_t x = x0; x < x1; x++) {
-    for (uint16_t y = y0; y < y1; y++) {
+  for (uint16_t y = y0; y < y1; y++) {
+    for (uint16_t x = x0; x < x1; x++) {
       ILI9488_DrawPixel(x, y, color);
     }
   }
@@ -414,7 +404,7 @@ void ILI9488_Rotate(ILI9488_Orientation_t orientation) {
 	}
 }
 
-#if 0
+#if 1
 void ILI9488_Puts(uint16_t x, uint16_t y, char *str, FontDef_t *font, uint32_t foreground, uint32_t background) {
 	uint16_t startX = x;
 

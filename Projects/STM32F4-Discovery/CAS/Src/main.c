@@ -39,6 +39,10 @@
 #include "main.h"
 #include "ili9488.h"
 
+extern FontDef_t Font_7x10;
+extern FontDef_t Font_11x18;
+extern FontDef_t Font_16x26;
+
 /** @addtogroup STM32F4xx_HAL_Examples
   * @{
   */
@@ -138,7 +142,7 @@ int main(void)
   /* Set the SPI parameters */
   SpiHandle.Instance               = SPIx;
 
-  SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+  SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   SpiHandle.Init.Direction         = SPI_DIRECTION_2LINES;
   SpiHandle.Init.CLKPhase          = SPI_PHASE_1EDGE;
   SpiHandle.Init.CLKPolarity       = SPI_POLARITY_LOW;
@@ -157,6 +161,13 @@ int main(void)
   }
 
   ILI9488_Init();
+
+  ILI9488_Puts(0, 0, "Honeywell Connected Air Stat", &Font_16x26, 0x000000, 0xFFFFFF);
+  ILI9488_Puts(160, 240, "Hello 9488", &Font_11x18, 0x000000, 0xFFFFFF);
+  ILI9488_Puts(0, 400, "320RGB x 480 Resolution and 16.7M-color", &Font_7x10, 0x000000, 0xFFFFFF);
+  ILI9488_Puts(0, 60, "Honeywell", &Font_16x26, 0xFF0000, 0xFFFFFF);
+  ILI9488_Puts(0, 90, "Honeywell", &Font_16x26, 0x00FF00, 0x0007FF);
+  ILI9488_Puts(0, 120, "Honeywell", &Font_16x26, 0x0000FF, 0x000000);
 
   /* Infinite loop */
   while (1)
