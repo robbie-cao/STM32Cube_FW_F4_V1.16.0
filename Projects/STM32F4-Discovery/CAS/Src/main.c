@@ -170,7 +170,7 @@ int main(void)
   ILI9488_Puts(0, 90, "Honeywell", &Font_16x26, 0x00FF00, 0x0007FF);
   ILI9488_Puts(0, 120, "Honeywell", &Font_16x26, 0x0000FF, 0x000000);
 
-  ILI9488_DrawBitmap(10, 150, stlogo);
+  ILI9488_DrawBitmap(0, 0, stlogo);
 
   /* Infinite loop */
   while (1)

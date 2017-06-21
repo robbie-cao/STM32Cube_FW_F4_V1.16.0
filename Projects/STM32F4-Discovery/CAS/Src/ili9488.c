@@ -145,8 +145,8 @@ void ILI9488_Init(void)
 //	ILI9488_Opts.orientation = ILI9488_Landscape;
 
 	/* Fill with white color */
-	ILI9488_Fill(ILI9488_COLOR_CYAN);
-//	ILI9488_Fill(0xFFFFFF);
+//	ILI9488_Fill(ILI9488_COLOR_CYAN);
+	ILI9488_Fill(0xC0C0C0);
 //        ILI9488_INT_Fill(0, 0, 320 - 1, 480, ILI9488_COLOR_RED);
 }
 
@@ -319,15 +319,15 @@ void ILI9488_DrawPixel(uint16_t x, uint16_t y, uint32_t color) {
 
 void ILI9488_SetCursorPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 	ILI9488_SendCommand(ILI9488_COLUMN_ADDR);
-	ILI9488_SendData(x1 >> 8);
+	ILI9488_SendData((x1 >> 8) & 0xFF);
 	ILI9488_SendData(x1 & 0xFF);
-	ILI9488_SendData(x2 >> 8);
+	ILI9488_SendData((x2 >> 8) & 0xFF);
 	ILI9488_SendData(x2 & 0xFF);
 
 	ILI9488_SendCommand(ILI9488_PAGE_ADDR);
-	ILI9488_SendData(y1 >> 8);
+	ILI9488_SendData((y1 >> 8) & 0xFF);
 	ILI9488_SendData(y1 & 0xFF);
-	ILI9488_SendData(y2 >> 8);
+	ILI9488_SendData((y2 >> 8) & 0xFF);
 	ILI9488_SendData(y2 & 0xFF);
 }
 
@@ -657,13 +657,8 @@ void ILI9488_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp)
   height = *(uint16_t *) (pBmp + 22);
   height |= (*(uint16_t *) (pBmp + 24)) << 16;
 
-//  SetDisplayWindow(Xpos, Ypos, width, height);
-  ILI9488_SetCursorPosition(Xpos, Ypos, Xpos + width, Ypos + height);
+  printf("h: %d, w: %d\r\n", width, height);
 
-  ILI9488_SendCommand(0x36);
-  ILI9488_SendData(0x40);
-
-  {
   uint32_t index = 0, size = 0;
   /* Read bitmap size */
   size = *(volatile uint16_t *) (pBmp + 2);
@@ -671,13 +666,33 @@ void ILI9488_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp)
   /* Get bitmap data address offset */
   index = *(volatile uint16_t *) (pBmp + 10);
   index |= (*(volatile uint16_t *) (pBmp + 12)) << 16;
+  printf("size: %d, index: %d\r\n", size, index);
   size = (size - index) / 2;
   pBmp += index;
 
-	ILI9488_SendCommand(ILI9488_GRAM);
 #if 0
-        ILI9488_SendMultipleData(pBmp, size * 2);
-#elif 1	// RGB-888
+  ILI9488_SetCursorPosition(Xpos, Ypos, Xpos + width - 1, Ypos + height - 1);
+  uint8_t *p0 = pBmp;
+  for (int i = 0; i < width; i++) {
+	  for (int j = 0; j < height; j++) {
+		uint32_t color = (*p0++) << 16 | (*p0++) << 8 | (*p0++);
+		ILI9488_DrawPixel(Xpos + i, Ypos + j, color);
+	  }
+  }
+  ILI9488_SetCursorPosition(0, 0, ILI9488_WIDTH, ILI9488_HEIGHT);
+  return;
+#endif
+
+//  SetDisplayWindow(Xpos, Ypos, width, height);
+  ILI9488_SetCursorPosition(Xpos, Ypos, Xpos + width - 1, Ypos + height - 1);
+
+  ILI9488_SendCommand(0x36);
+  ILI9488_SendData(0x40);
+
+  ILI9488_SendCommand(ILI9488_GRAM);
+#if 1	// RGB888
+  ILI9488_SendMultipleData(pBmp, size * 2);
+#elif 1	// RGB-888/666
   uint8_t *p = pBmp;
   for (int i = 0; i < height * width; i++)
   {
@@ -695,7 +710,6 @@ void ILI9488_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp)
     p++;
   }
 #endif
-  }
 
 //  SetDisplayWindow(0, 0, BSP_LCD_GetXSize(), BSP_LCD_GetYSize());
   ILI9488_SetCursorPosition(0, 0, ILI9488_WIDTH, ILI9488_HEIGHT);
