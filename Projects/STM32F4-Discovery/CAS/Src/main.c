@@ -38,6 +38,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "ili9488.h"
+#include "stlogo.h"
 
 extern FontDef_t Font_7x10;
 extern FontDef_t Font_11x18;
@@ -142,7 +143,7 @@ int main(void)
   /* Set the SPI parameters */
   SpiHandle.Instance               = SPIx;
 
-  SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+  SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   SpiHandle.Init.Direction         = SPI_DIRECTION_2LINES;
   SpiHandle.Init.CLKPhase          = SPI_PHASE_1EDGE;
   SpiHandle.Init.CLKPolarity       = SPI_POLARITY_LOW;
@@ -168,6 +169,8 @@ int main(void)
   ILI9488_Puts(0, 60, "Honeywell", &Font_16x26, 0xFF0000, 0xFFFFFF);
   ILI9488_Puts(0, 90, "Honeywell", &Font_16x26, 0x00FF00, 0x0007FF);
   ILI9488_Puts(0, 120, "Honeywell", &Font_16x26, 0x0000FF, 0x000000);
+
+  ILI9488_DrawBitmap(10, 150, stlogo);
 
   /* Infinite loop */
   while (1)

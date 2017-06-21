@@ -73,6 +73,7 @@ uint8_t ILI9488_INT_CalledFromPuts = 0;
 /* Private functions */
 void ILI9488_InitLCD(void);
 void ILI9488_SendData(uint8_t data);
+void ILI9488_SendMultipleData(uint8_t *pData, uint32_t len);
 void ILI9488_SendCommand(uint8_t data);
 void ILI9488_Delay(volatile unsigned int delay);
 void ILI9488_SetCursorPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
@@ -291,6 +292,13 @@ void ILI9488_SendData(uint8_t data) {
 	ILI9488_CS_RESET;
 //	SPI_Send(ILI9488_SPI, data);
 	HAL_SPI_Transmit(&SpiHandle, (uint8_t*)&data, 1, 5000);
+	ILI9488_CS_SET;
+}
+
+void ILI9488_SendMultipleData(uint8_t *pData, uint32_t len) {
+	ILI9488_WRX_SET;
+	ILI9488_CS_RESET;
+	HAL_SPI_Transmit(&SpiHandle, (uint8_t*)pData, len, 5000);
 	ILI9488_CS_SET;
 }
 
@@ -628,4 +636,67 @@ void ILI9488_DrawFilledCircle(int16_t x0, int16_t y0, int16_t r, uint32_t color)
         ILI9488_DrawLine(x0 + y, y0 + x, x0 - y, y0 + x, color);
         ILI9488_DrawLine(x0 + y, y0 - x, x0 - y, y0 - x, color);
     }
+}
+
+/**
+  * @brief  Draws a bitmap picture loaded in the STM32 MCU internal memory.
+  * @param  Xpos: Bmp X position in the LCD
+  * @param  Ypos: Bmp Y position in the LCD
+  * @param  pBmp: Pointer to Bmp picture address
+  * @retval None
+  */
+void ILI9488_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp)
+{
+  uint32_t height = 0, width  = 0;
+
+  /* Read bitmap width */
+  width = *(uint16_t *) (pBmp + 18);
+  width |= (*(uint16_t *) (pBmp + 20)) << 16;
+
+  /* Read bitmap height */
+  height = *(uint16_t *) (pBmp + 22);
+  height |= (*(uint16_t *) (pBmp + 24)) << 16;
+
+//  SetDisplayWindow(Xpos, Ypos, width, height);
+  ILI9488_SetCursorPosition(Xpos, Ypos, Xpos + width, Ypos + height);
+
+  ILI9488_SendCommand(0x36);
+  ILI9488_SendData(0x40);
+
+  {
+  uint32_t index = 0, size = 0;
+  /* Read bitmap size */
+  size = *(volatile uint16_t *) (pBmp + 2);
+  size |= (*(volatile uint16_t *) (pBmp + 4)) << 16;
+  /* Get bitmap data address offset */
+  index = *(volatile uint16_t *) (pBmp + 10);
+  index |= (*(volatile uint16_t *) (pBmp + 12)) << 16;
+  size = (size - index) / 2;
+  pBmp += index;
+
+	ILI9488_SendCommand(ILI9488_GRAM);
+#if 0
+        ILI9488_SendMultipleData(pBmp, size * 2);
+#elif 1	// RGB-888
+  uint8_t *p = pBmp;
+  for (int i = 0; i < height * width; i++)
+  {
+	ILI9488_SendData(*p++);
+	ILI9488_SendData(*p++);
+	ILI9488_SendData(*p++);
+  }
+#else	// RGB-565
+  uint16_t *p = (uint16_t *)pBmp;
+  for (int i = 0; i < height * width; i++)
+  {
+	ILI9488_SendData(((*p >> 11) & 0x1F) << 2);
+	ILI9488_SendData(((*p >> 5) & 0x3F) << 2);
+	ILI9488_SendData((*p & 0x1F) << 2);
+    p++;
+  }
+#endif
+  }
+
+//  SetDisplayWindow(0, 0, BSP_LCD_GetXSize(), BSP_LCD_GetYSize());
+  ILI9488_SetCursorPosition(0, 0, ILI9488_WIDTH, ILI9488_HEIGHT);
 }

@@ -238,6 +238,8 @@ void ILI9488_DisplayOff(void);
 void ILI9488_Test(void);
 void ILI9488_Init(void);
 void ILI9488_InitPins(void);
+void ILI9488_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp);
+
 /**
  * @}
  */
