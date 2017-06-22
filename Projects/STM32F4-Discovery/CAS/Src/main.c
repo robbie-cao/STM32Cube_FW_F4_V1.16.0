@@ -54,6 +54,8 @@ extern FontDef_t Font_16x26;
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define I2C_TIMEOUT     10000
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* UART handler declaration */
@@ -88,6 +90,58 @@ int fputc(int ch, FILE *f)
   HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, 0xFFFF);
 
   return ch;
+}
+
+
+uint8_t I2C_Read(uint8_t addr, uint8_t *pData, uint8_t len)
+{
+    return (uint8_t)HAL_I2C_Master_Receive(&I2cHandle, addr, pData, len, I2C_TIMEOUT);
+}
+
+uint8_t I2C_Write(uint8_t addr, uint8_t *pData, uint8_t len)
+{
+    return (uint8_t)HAL_I2C_Master_Transmit(&I2cHandle, addr, pData, len, I2C_TIMEOUT);
+}
+
+#define IAQ_CORE_I2C_ADDRESS    (0x5A << 1)
+
+uint8_t IAQ_Core_Read(uint16_t* co2, uint16_t* tvoc)
+{
+  uint8_t res = 0;
+  uint8_t buf[9];
+
+  memset(buf, 0, sizeof(buf));
+  res = I2C_Read(IAQ_CORE_I2C_ADDRESS, buf, sizeof(buf));
+  printf("IAQ R - %d\r\n", res);
+  printf("Data: ");
+  for (int i = 0; i < sizeof(buf); i++) {
+    printf("%02x ", buf[i]);
+  }
+  printf("\r\n");
+
+  return 0;
+}
+
+#define HIH6130_I2C_ADDRESS        (0x27 << 1)
+
+uint8_t HIH6130_Read(uint16_t* humidity, uint16_t* temperature)
+{
+  uint8_t res = 0;
+  uint8_t buf[4];
+
+  memset(buf, 0, sizeof(buf));
+  res = I2C_Write(HIH6130_I2C_ADDRESS, NULL, 0);
+  printf("I2C W - %d\r\n", res);
+  HAL_Delay(100);
+  res = I2C_Read(HIH6130_I2C_ADDRESS, buf, sizeof(buf));
+  printf("H/T R - %d\r\n", res);
+  printf("Data: ");
+  for (int i = 0; i < sizeof(buf); i++) {
+    printf("%02x ", buf[i]);
+  }
+  printf("\r\n");
+
+  return 0;
 }
 
 
@@ -238,13 +292,20 @@ int main(void)
   I2cHandle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
   I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
-  I2cHandle.Init.OwnAddress1     = 0x00;
+  I2cHandle.Init.OwnAddress1     = (0x5A << 1);
   I2cHandle.Init.OwnAddress2     = 0xFE;
 
   if(HAL_I2C_Init(&I2cHandle) != HAL_OK)
   {
     /* Initialization Error */
     Error_Handler();
+  }
+
+  while (1) {
+    uint16_t h, t;
+    IAQ_Core_Read(&h, &t);
+    HIH6130_Read(&h, &t);
+    HAL_Delay(1000);
   }
 
   /* Infinite loop */
