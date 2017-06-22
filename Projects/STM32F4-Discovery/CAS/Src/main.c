@@ -162,16 +162,34 @@ int main(void)
   {
     Error_Handler();
   }
+
+#if 0
   HAL_UART_Transmit(&UartHandle_CO2, (uint8_t *)"UART1\r\n", 7, 0xFFFF);
-  while (0) {
+  while (1) {
     uint8_t buf[8];
     memset(buf, 0, sizeof(buf));
-    HAL_UART_Receive(&UartHandle_CO2, buf, 8, 0xFFFF);
+    HAL_UART_Receive(&UartHandle_CO2, buf, 1, 0xFFFF);
     if (buf[0]) {
       printf("%c", buf[0]);
     }
   }
+#endif
 
+#if 1
+  // Test Sensair
+  while (1) {
+    uint8_t cmd[8] = {0xFE, 0x04, 0x00, 0x03, 0x00, 0x01, 0xD5, 0xC5};
+    uint8_t rcv[8];
+    memset(rcv, 0, sizeof(rcv));
+    HAL_UART_Transmit(&UartHandle_CO2, cmd, 8, 0xFFFF);
+    HAL_UART_Receive(&UartHandle_CO2, rcv, 7, 0xFFFF);
+    for (int i = 0; i < 7; i++) {
+      printf("0x%02x ", rcv[i]);
+    }
+    printf("\r\n");
+    HAL_Delay(1000);
+  }
+#endif
 
   /*##-1- Configure the SPI peripheral #######################################*/
   /* Set the SPI parameters */
