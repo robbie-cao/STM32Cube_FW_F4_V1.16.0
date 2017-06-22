@@ -58,6 +58,7 @@ extern FontDef_t Font_16x26;
 /* Private variables ---------------------------------------------------------*/
 /* UART handler declaration */
 UART_HandleTypeDef UartHandle;
+UART_HandleTypeDef UartHandle_CO2;
 /* SPI handler declaration */
 SPI_HandleTypeDef SpiHandle;
 
@@ -120,7 +121,7 @@ int main(void)
       - Word Length = 8 Bits
       - Stop Bit = One Stop bit
       - Parity = None
-      - BaudRate = 9600 baud
+      - BaudRate = 115200 baud
       - Hardware flow control disabled (RTS and CTS signals) */
   UartHandle.Instance          = USARTx;
 
@@ -138,6 +139,39 @@ int main(void)
   }
 
   printf("Hello STM32F407\r\n");
+
+  /*##-1- Configure the UART peripheral ######################################*/
+  /* Put the USART peripheral in the Asynchronous mode (UART Mode) */
+  /* UART1 configured as follow:
+      - Word Length = 8 Bits
+      - Stop Bit = One Stop bit
+      - Parity = None
+      - BaudRate = 9600 baud
+      - Hardware flow control disabled (RTS and CTS signals) */
+  UartHandle_CO2.Instance          = USART_CO2;
+
+  UartHandle_CO2.Init.BaudRate     = 9600;
+  UartHandle_CO2.Init.WordLength   = UART_WORDLENGTH_8B;
+  UartHandle_CO2.Init.StopBits     = UART_STOPBITS_1;
+  UartHandle_CO2.Init.Parity       = UART_PARITY_NONE;
+  UartHandle_CO2.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+  UartHandle_CO2.Init.Mode         = UART_MODE_TX_RX;
+  UartHandle_CO2.Init.OverSampling = UART_OVERSAMPLING_16;
+
+  if (HAL_UART_Init(&UartHandle_CO2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  HAL_UART_Transmit(&UartHandle_CO2, (uint8_t *)"UART1\r\n", 7, 0xFFFF);
+  while (0) {
+    uint8_t buf[8];
+    memset(buf, 0, sizeof(buf));
+    HAL_UART_Receive(&UartHandle_CO2, buf, 8, 0xFFFF);
+    if (buf[0]) {
+      printf("%c", buf[0]);
+    }
+  }
+
 
   /*##-1- Configure the SPI peripheral #######################################*/
   /* Set the SPI parameters */

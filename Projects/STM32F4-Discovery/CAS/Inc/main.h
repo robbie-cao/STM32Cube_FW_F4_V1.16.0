@@ -64,6 +64,24 @@
 #define USARTx_RX_AF                     GPIO_AF7_USART2
 
 
+/* Definition for USARTx clock resources */
+#define USART_CO2                        USART1
+#define USART_CO2_CLK_ENABLE()           __HAL_RCC_USART1_CLK_ENABLE();
+#define USART_CO2_RX_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOB_CLK_ENABLE()
+#define USART_CO2_TX_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define USART_CO2_FORCE_RESET()          __HAL_RCC_USART1_FORCE_RESET()
+#define USART_CO2_RELEASE_RESET()        __HAL_RCC_USART1_RELEASE_RESET()
+
+/* Definition for USARTx Pins */
+#define USART_CO2_TX_PIN                 GPIO_PIN_6
+#define USART_CO2_TX_GPIO_PORT           GPIOB
+#define USART_CO2_TX_AF                  GPIO_AF7_USART1
+#define USART_CO2_RX_PIN                 GPIO_PIN_7
+#define USART_CO2_RX_GPIO_PORT           GPIOB
+#define USART_CO2_RX_AF                  GPIO_AF7_USART1
+
+
 /* User can use this section to tailor SPIx instance used and associated
    resources */
 /* Definition for SPIx clock resources */
