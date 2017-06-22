@@ -118,6 +118,9 @@ uint8_t IAQ_Core_Read(uint16_t* co2, uint16_t* tvoc)
     printf("%02x ", buf[i]);
   }
   printf("\r\n");
+  uint16_t cx2 = (((uint16_t)buf[0]) << 8) | buf[1];
+  uint16_t voc = (((uint16_t)buf[7]) << 8) | buf[8];
+  printf("CO2: %d, VOC: %d\r\n", cx2, voc);
 
   return 0;
 }
@@ -140,11 +143,31 @@ uint8_t HIH6130_Read(uint16_t* humidity, uint16_t* temperature)
     printf("%02x ", buf[i]);
   }
   printf("\r\n");
+  uint16_t h = (((uint16_t)buf[0]) << 8) | buf[1];
+  uint16_t t = ((((uint16_t)buf[2]) << 8) | buf[3]) / 4;
+  float rh = (float)h * 6.10e-3;
+  float rt = (float)t * 1.007e-2 - 40.0;
+  printf("H: %.1f, T: %.1f\r\n", rh, rt);
 
   return 0;
 }
 
+uint8_t S8_Read(uint16_t *c)
+{
+  uint8_t cmd[8] = {0xFE, 0x04, 0x00, 0x03, 0x00, 0x01, 0xD5, 0xC5};
+  uint8_t rcv[8];
+  memset(rcv, 0, sizeof(rcv));
+  HAL_UART_Transmit(&UartHandle_CO2, cmd, 8, 0xFFFF);
+  HAL_UART_Receive(&UartHandle_CO2, rcv, 7, 0xFFFF);
+  for (int i = 0; i < 7; i++) {
+    printf("0x%02x ", rcv[i]);
+  }
+  printf("\r\n");
+  uint16_t co2 = rcv[3] << 8 | rcv[4];
+  printf("CO2: %d\r\n", co2);
 
+  return 0;
+}
 
 /**
   * @brief  Main program
@@ -243,6 +266,8 @@ int main(void)
       printf("0x%02x ", rcv[i]);
     }
     printf("\r\n");
+    uint16 co2 = buf[3] << 8 | buf[4];
+    printf("CO2: %d\r\n", co2);
     HAL_Delay(1000);
   }
 #endif
@@ -302,9 +327,11 @@ int main(void)
   }
 
   while (1) {
-    uint16_t h, t;
+    uint16_t h, t, c;
+
     IAQ_Core_Read(&h, &t);
     HIH6130_Read(&h, &t);
+    S8_Read(&c);
     HAL_Delay(1000);
   }
 
