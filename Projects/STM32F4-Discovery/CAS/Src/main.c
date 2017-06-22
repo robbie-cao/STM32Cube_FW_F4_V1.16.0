@@ -61,6 +61,8 @@ UART_HandleTypeDef UartHandle;
 UART_HandleTypeDef UartHandle_CO2;
 /* SPI handler declaration */
 SPI_HandleTypeDef SpiHandle;
+/* I2C handler declaration */
+I2C_HandleTypeDef I2cHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -175,7 +177,7 @@ int main(void)
   }
 #endif
 
-#if 1
+#if 0
   // Test Sensair
   while (1) {
     uint8_t cmd[8] = {0xFE, 0x04, 0x00, 0x03, 0x00, 0x01, 0xD5, 0xC5};
@@ -213,6 +215,8 @@ int main(void)
     Error_Handler();
   }
 
+#if 0
+  // Test LCD
   ILI9488_Init();
 
   ILI9488_Puts(0, 0, "Honeywell Connected Air Stat", &Font_16x26, 0x000000, 0xFFFFFF);
@@ -223,6 +227,25 @@ int main(void)
   ILI9488_Puts(0, 120, "Honeywell", &Font_16x26, 0x0000FF, 0x000000);
 
   ILI9488_DrawBitmap(0, 0, stlogo);
+#endif
+
+  /*##-1- Configure the I2C peripheral ######################################*/
+  I2cHandle.Instance             = I2Cx;
+
+  I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+  I2cHandle.Init.ClockSpeed      = 100000;
+  I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  I2cHandle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
+  I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+  I2cHandle.Init.OwnAddress1     = 0x00;
+  I2cHandle.Init.OwnAddress2     = 0xFE;
+
+  if(HAL_I2C_Init(&I2cHandle) != HAL_OK)
+  {
+    /* Initialization Error */
+    Error_Handler();
+  }
 
   /* Infinite loop */
   while (1)
