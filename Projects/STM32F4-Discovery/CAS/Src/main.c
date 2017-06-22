@@ -122,6 +122,11 @@ uint8_t IAQ_Core_Read(uint16_t* co2, uint16_t* tvoc)
   uint16_t voc = (((uint16_t)buf[7]) << 8) | buf[8];
   printf("CO2: %d, VOC: %d\r\n", cx2, voc);
 
+  char str[32];
+  memset(str, 0, sizeof(str));
+  sprintf(str, "VOC: %d", voc);
+  ILI9488_Puts(10, 120, str, &Font_16x26, 0x000000, 0xFFFFFF);
+
   return 0;
 }
 
@@ -149,6 +154,13 @@ uint8_t HIH6130_Read(uint16_t* humidity, uint16_t* temperature)
   float rt = (float)t * 1.007e-2 - 40.0;
   printf("H: %.1f, T: %.1f\r\n", rh, rt);
 
+  char str[32];
+  memset(str, 0, sizeof(str));
+  sprintf(str, "H: %.1f", rh);
+  ILI9488_Puts(10, 150, str, &Font_16x26, 0x000000, 0xFFFFFF);
+  sprintf(str, "T: %.1f", rt);
+  ILI9488_Puts(10, 180, str, &Font_16x26, 0x000000, 0xFFFFFF);
+
   return 0;
 }
 
@@ -165,6 +177,11 @@ uint8_t S8_Read(uint16_t *c)
   printf("\r\n");
   uint16_t co2 = rcv[3] << 8 | rcv[4];
   printf("CO2: %d\r\n", co2);
+
+  char str[32];
+  memset(str, 0, sizeof(str));
+  sprintf(str, "CO2: %d", co2);
+  ILI9488_Puts(10, 210, str, &Font_16x26, 0x000000, 0xFFFFFF);
 
   return 0;
 }
@@ -326,6 +343,10 @@ int main(void)
     Error_Handler();
   }
 
+#if 1
+  ILI9488_Init();
+  ILI9488_Puts(10, 0, "Honeywell", &Font_16x26, 0x000000, 0xFFFFFF);
+  ILI9488_Puts(10, 30, "Connected Air Stat", &Font_16x26, 0x000000, 0xFFFFFF);
   while (1) {
     uint16_t h, t, c;
 
@@ -334,6 +355,7 @@ int main(void)
     S8_Read(&c);
     HAL_Delay(1000);
   }
+#endif
 
   /* Infinite loop */
   while (1)

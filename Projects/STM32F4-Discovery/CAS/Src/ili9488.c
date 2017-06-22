@@ -146,7 +146,7 @@ void ILI9488_Init(void)
 
 	/* Fill with white color */
 //	ILI9488_Fill(ILI9488_COLOR_CYAN);
-	ILI9488_Fill(0xC0C0C0);
+//	ILI9488_Fill(0xFFFFFF);
 //        ILI9488_INT_Fill(0, 0, 320 - 1, 480, ILI9488_COLOR_RED);
 }
 
