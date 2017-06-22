@@ -690,9 +690,9 @@ void ILI9488_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp)
   ILI9488_SendData(0x40);
 
   ILI9488_SendCommand(ILI9488_GRAM);
-#if 1	// RGB888
+#if 0	// RGB888
   ILI9488_SendMultipleData(pBmp, size * 2);
-#elif 1	// RGB-888/666
+#elif 0	// RGB-888/666
   uint8_t *p = pBmp;
   for (int i = 0; i < height * width; i++)
   {
