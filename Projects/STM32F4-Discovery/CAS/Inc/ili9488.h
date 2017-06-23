@@ -145,6 +145,8 @@ void ILI9488_Rotate(ILI9488_Orientation_t orientation);
  */
 void ILI9488_Putc(uint16_t x, uint16_t y, char c, FontDef_t* font, uint32_t foreground, uint32_t background);
 
+void ILI9488_PutChar(uint16_t x, uint16_t y, char c, FontDef_t* font, uint32_t color);
+
 /**
  * @brief  Puts string to LCD
  * @param  x: X position of top left corner of first character in string
@@ -156,6 +158,8 @@ void ILI9488_Putc(uint16_t x, uint16_t y, char c, FontDef_t* font, uint32_t fore
  * @retval None
  */
 void ILI9488_Puts(uint16_t x, uint16_t y, char* str, FontDef_t *font, uint32_t foreground, uint32_t background);
+
+void ILI9488_PutString(uint16_t x, uint16_t y, char* str, FontDef_t *font, uint32_t color);
 
 /**
  * @brief  Gets width and height of box with text

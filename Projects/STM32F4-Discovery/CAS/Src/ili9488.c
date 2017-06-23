@@ -412,7 +412,6 @@ void ILI9488_Rotate(ILI9488_Orientation_t orientation) {
 	}
 }
 
-#if 1
 void ILI9488_Puts(uint16_t x, uint16_t y, char *str, FontDef_t *font, uint32_t foreground, uint32_t background) {
 	uint16_t startX = x;
 
@@ -440,6 +439,36 @@ void ILI9488_Puts(uint16_t x, uint16_t y, char *str, FontDef_t *font, uint32_t f
 
 		/* Put character to LCD */
 		ILI9488_Putc(ILI9488_x, ILI9488_y, *str++, font, foreground, background);
+	}
+}
+
+void ILI9488_PutString(uint16_t x, uint16_t y, char *str, FontDef_t *font, uint32_t color) {
+	uint16_t startX = x;
+
+	/* Set X and Y coordinates */
+	ILI9488_x = x;
+	ILI9488_y = y;
+
+	while (*str) {
+		/* New line */
+		if (*str == '\n') {
+			ILI9488_y += font->FontHeight + 1;
+			/* if after \n is also \r, than go to the left of the screen */
+			if (*(str + 1) == '\r') {
+				ILI9488_x = 0;
+				str++;
+			} else {
+				ILI9488_x = startX;
+			}
+			str++;
+			continue;
+		} else if (*str == '\r') {
+			str++;
+			continue;
+		}
+
+		/* Put character to LCD */
+		ILI9488_PutChar(ILI9488_x, ILI9488_y, *str++, font, color);
 	}
 }
 
@@ -480,7 +509,32 @@ void ILI9488_Putc(uint16_t x, uint16_t y, char c, FontDef_t *font, uint32_t fore
 	/* Set new pointer */
 	ILI9488_x += font->FontWidth;
 }
-#endif
+
+void ILI9488_PutChar(uint16_t x, uint16_t y, char c, FontDef_t *font, uint32_t color) {
+	uint32_t i, b, j;
+	/* Set coordinates */
+	ILI9488_x = x;
+	ILI9488_y = y;
+
+	if ((ILI9488_x + font->FontWidth) > ILI9488_Opts.width) {
+		/* If at the end of a line of display, go to new line and set x to 0 position */
+		ILI9488_y += font->FontHeight;
+		ILI9488_x = 0;
+	}
+
+	/* Draw font data */
+	for (i = 0; i < font->FontHeight; i++) {
+		b = font->data[(c - 32) * font->FontHeight + i];
+		for (j = 0; j < font->FontWidth; j++) {
+			if ((b << j) & 0x8000) {
+				ILI9488_DrawPixel(ILI9488_x + j, (ILI9488_y + i), color);
+			}
+		}
+	}
+
+	/* Set new pointer */
+	ILI9488_x += font->FontWidth;
+}
 
 void ILI9488_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint32_t color) {
 	/* Code by dewoller: https://github.com/dewoller */
