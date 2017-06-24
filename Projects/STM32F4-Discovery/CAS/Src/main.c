@@ -44,6 +44,8 @@ extern FontDef_t Font_7x10;
 extern FontDef_t Font_11x18;
 extern FontDef_t Font_16x26;
 
+extern unsigned char logo[];
+
 /** @addtogroup STM32F4xx_HAL_Examples
   * @{
   */
@@ -345,8 +347,9 @@ int main(void)
 
 #if 1
   ILI9488_Init();
-  ILI9488_Puts(10, 0, "Honeywell", &Font_16x26, 0x000000, 0xFFFFFF);
-  ILI9488_Puts(10, 30, "Connected Air Stat", &Font_16x26, 0x000000, 0xFFFFFF);
+  ILI9488_Puts(10, 0, "Honeywell", &Font_16x26, 0xFF0000, 0xFFFFFF);
+  ILI9488_Puts(10, 30, "Connected Air Stat", &Font_16x26, 0x0000FF, 0xFFFFFF);
+  ILI9488_DrawBitmap(70, 10, logo);
   while (1) {
     uint16_t h, t, c;
 

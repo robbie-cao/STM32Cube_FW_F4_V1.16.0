@@ -225,7 +225,7 @@ void ILI9488_InitLCD(void)
 	SPI4_DAT_8bit(0x02);
 
 	SPI4_CMD_8bit(0xB6);  //mcu-interface
-	SPI4_DAT_8bit(0x00);
+	SPI4_DAT_8bit(0x02);
 	SPI4_DAT_8bit(0x22);
 	SPI4_DAT_8bit(0x3B);
 
@@ -741,12 +741,12 @@ void ILI9488_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp)
   ILI9488_SetCursorPosition(Xpos, Ypos, Xpos + width - 1, Ypos + height - 1);
 
   ILI9488_SendCommand(0x36);
-  ILI9488_SendData(0x40);
+  ILI9488_SendData(0x48);
 
   ILI9488_SendCommand(ILI9488_GRAM);
 #if 0	// RGB888
   ILI9488_SendMultipleData(pBmp, size * 2);
-#elif 0	// RGB-888/666
+#elif 1	// RGB-888/666
   uint8_t *p = pBmp;
   for (int i = 0; i < height * width; i++)
   {
@@ -764,6 +764,9 @@ void ILI9488_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp)
     p++;
   }
 #endif
+
+	SPI4_CMD_8bit(0x36);
+	SPI4_DAT_8bit(0xC8);
 
 //  SetDisplayWindow(0, 0, BSP_LCD_GetXSize(), BSP_LCD_GetYSize());
   ILI9488_SetCursorPosition(0, 0, ILI9488_WIDTH, ILI9488_HEIGHT);
