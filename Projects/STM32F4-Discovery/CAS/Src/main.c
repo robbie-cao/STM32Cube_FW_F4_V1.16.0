@@ -41,6 +41,7 @@
 #include "stlogo.h"
 #include "i2c.h"
 #include "voc.h"
+#include "hih6130.h"
 
 extern FontDef_t Font_7x10;
 extern FontDef_t Font_11x18;
@@ -96,36 +97,6 @@ int fputc(int ch, FILE *f)
   return ch;
 }
 
-
-#define HIH6130_I2C_ADDRESS        (0x27 << 1)
-
-uint8_t HIH6130_Read(float* humidity, float* temperature)
-{
-  uint8_t res = 0;
-  uint8_t buf[4];
-
-  memset(buf, 0, sizeof(buf));
-  res = I2C_Write(HIH6130_I2C_ADDRESS, NULL, 0);
-  printf("I2C W - %d\r\n", res);
-  HAL_Delay(100);
-  res = I2C_Read(HIH6130_I2C_ADDRESS, buf, sizeof(buf));
-  printf("H/T R - %d\r\n", res);
-  printf("Data: ");
-  for (int i = 0; i < sizeof(buf); i++) {
-    printf("%02x ", buf[i]);
-  }
-  printf("\r\n");
-  uint16_t h = (((uint16_t)buf[0]) << 8) | buf[1];
-  uint16_t t = ((((uint16_t)buf[2]) << 8) | buf[3]) / 4;
-  float rh = (float)h * 6.10e-3;
-  float rt = (float)t * 1.007e-2 - 40.0;
-  printf("H: %.1f, T: %.1f\r\n", rh, rt);
-
-  *humidity = rh;
-  *temperature = rt;
-
-  return 0;
-}
 
 uint8_t S8_Read(uint16_t *c)
 {
@@ -322,7 +293,7 @@ int main(void)
     uint16_t co2, voc;
 
     Get_VocData(&co2, &voc);
-    HIH6130_Read(&h, &t);
+    Get_HumiTemp(&h, &t);
     S8_Read(&co2);
 
     char str[32];
