@@ -15,9 +15,14 @@ uint8_t S8_Read(uint16_t *c)
     printf("0x%02x ", rcv[i]);
   }
   printf("\r\n");
-  uint16_t co2 = rcv[3] << 8 | rcv[4];
-  printf("CO2: %d\r\n", co2);
-  *c = co2;
+  if (rcv[1] == 0x04 && rcv[2] == 0x02) {
+    uint16_t co2 = rcv[3] << 8 | rcv[4];
+    printf("CO2: %d\r\n", co2);
+    *c = co2;
+  } else {
+	*c = -1;
+	return ERROR;
+  }
 
-  return 0;
+  return SUCCESS;
 }
