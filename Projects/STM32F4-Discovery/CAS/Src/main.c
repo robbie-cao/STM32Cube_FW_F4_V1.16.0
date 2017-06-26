@@ -40,6 +40,7 @@
 #include "ili9488.h"
 #include "stlogo.h"
 #include "i2c.h"
+#include "voc.h"
 
 extern FontDef_t Font_7x10;
 extern FontDef_t Font_11x18;
@@ -95,32 +96,6 @@ int fputc(int ch, FILE *f)
   return ch;
 }
 
-
-
-#define IAQ_CORE_I2C_ADDRESS    (0x5A << 1)
-
-uint8_t IAQ_Core_Read(uint16_t* co2, uint16_t* tvoc)
-{
-  uint8_t res = 0;
-  uint8_t buf[9];
-
-  memset(buf, 0, sizeof(buf));
-  res = I2C_Read(IAQ_CORE_I2C_ADDRESS, buf, sizeof(buf));
-  printf("IAQ R - %d\r\n", res);
-  printf("Data: ");
-  for (int i = 0; i < sizeof(buf); i++) {
-    printf("%02x ", buf[i]);
-  }
-  printf("\r\n");
-  uint16_t cx2 = (((uint16_t)buf[0]) << 8) | buf[1];
-  uint16_t voc = (((uint16_t)buf[7]) << 8) | buf[8];
-  printf("CO2: %d, VOC: %d\r\n", cx2, voc);
-
-  *co2 = cx2;
-  *tvoc = voc;
-
-  return 0;
-}
 
 #define HIH6130_I2C_ADDRESS        (0x27 << 1)
 
@@ -346,7 +321,7 @@ int main(void)
     float h, t;
     uint16_t co2, voc;
 
-    IAQ_Core_Read(&co2, &voc);
+    Get_VocData(&co2, &voc);
     HIH6130_Read(&h, &t);
     S8_Read(&co2);
 
