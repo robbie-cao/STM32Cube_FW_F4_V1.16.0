@@ -1220,6 +1220,9 @@
         <name>$PROJ_DIR$\..\Src\fonts.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\i2c.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\ili9488.c</name>
       </file>
       <file>

@@ -39,6 +39,7 @@
 #include "main.h"
 #include "ili9488.h"
 #include "stlogo.h"
+#include "i2c.h"
 
 extern FontDef_t Font_7x10;
 extern FontDef_t Font_11x18;
@@ -95,15 +96,6 @@ int fputc(int ch, FILE *f)
 }
 
 
-uint8_t I2C_Read(uint8_t addr, uint8_t *pData, uint8_t len)
-{
-    return (uint8_t)HAL_I2C_Master_Receive(&I2cHandle, addr, pData, len, I2C_TIMEOUT);
-}
-
-uint8_t I2C_Write(uint8_t addr, uint8_t *pData, uint8_t len)
-{
-    return (uint8_t)HAL_I2C_Master_Transmit(&I2cHandle, addr, pData, len, I2C_TIMEOUT);
-}
 
 #define IAQ_CORE_I2C_ADDRESS    (0x5A << 1)
 
