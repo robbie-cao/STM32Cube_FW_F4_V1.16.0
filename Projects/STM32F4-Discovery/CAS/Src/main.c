@@ -44,6 +44,8 @@
 #include "hih6130.h"
 #include "sensair.h"
 
+#include "stm32f4_discovery.h"
+
 extern FontDef_t Font_7x10;
 extern FontDef_t Font_11x18;
 extern FontDef_t Font_16x26;
@@ -71,6 +73,9 @@ UART_HandleTypeDef UartHandle_CO2;
 SPI_HandleTypeDef SpiHandle;
 /* I2C handler declaration */
 I2C_HandleTypeDef I2cHandle;
+
+TIM_HandleTypeDef TimHandle;
+uint32_t uwPrescalerValue = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -131,6 +136,9 @@ int main(void)
   /* Configure the system clock to 168 MHz */
   SystemClock_Config();
 
+  /* Configure LED3 and LED4 */
+  BSP_LED_Init(LED3);
+  BSP_LED_Init(LED4);
 
   /* Add your application code here
      */
@@ -267,6 +275,59 @@ int main(void)
   }
 
 #if 1
+  /*##-1- Configure the TIM peripheral #######################################*/
+  /* -----------------------------------------------------------------------
+    In this example TIM3 input clock (TIM3CLK) is set to 2 * APB1 clock (PCLK1),
+    since APB1 prescaler is different from 1.
+      TIM3CLK = 2 * PCLK1
+      PCLK1 = HCLK / 4
+      => TIM3CLK = HCLK / 2 = SystemCoreClock /2
+    To get TIM3 counter clock at 10 KHz, the Prescaler is computed as following:
+    Prescaler = (TIM3CLK / TIM3 counter clock) - 1
+    Prescaler = ((SystemCoreClock /2) /10 KHz) - 1
+
+    Note:
+     SystemCoreClock variable holds HCLK frequency and is defined in system_stm32f4xx.c file.
+     Each time the core clock (HCLK) changes, user had to update SystemCoreClock
+     variable value. Otherwise, any configuration based on this variable will be incorrect.
+     This variable is updated in three ways:
+      1) by calling CMSIS function SystemCoreClockUpdate()
+      2) by calling HAL API function HAL_RCC_GetSysClockFreq()
+      3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
+  ----------------------------------------------------------------------- */
+
+  /* Compute the prescaler value to have TIM3 counter clock equal to 10 KHz */
+  uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 10000) - 1;
+
+  /* Set TIMx instance */
+  TimHandle.Instance = TIMx;
+
+  /* Initialize TIM3 peripheral as follow:
+       + Period = 10000 - 1
+       + Prescaler = ((SystemCoreClock/2)/10000) - 1
+       + ClockDivision = 0
+       + Counter direction = Up
+  */
+  TimHandle.Init.Period = 10000 - 1;
+  TimHandle.Init.Prescaler = uwPrescalerValue;
+  TimHandle.Init.ClockDivision = 0;
+  TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
+  if(HAL_TIM_Base_Init(&TimHandle) != HAL_OK)
+  {
+    /* Initialization Error */
+    Error_Handler();
+  }
+
+  /*##-2- Start the TIM Base generation in interrupt mode ####################*/
+  /* Start Channel1 */
+  if(HAL_TIM_Base_Start_IT(&TimHandle) != HAL_OK)
+  {
+    /* Starting Error */
+    Error_Handler();
+  }
+#endif
+
+#if 1
   ILI9488_Init();
   ILI9488_Puts(88, 0, "Honeywell", &Font_16x26, 0xFF0000, 0xFFFFFF);
   ILI9488_Puts(16, 30, "Connected Air Stat", &Font_16x26, 0x0000FF, 0xFFFFFF);
@@ -299,6 +360,17 @@ int main(void)
   while (1)
   {
   }
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @param  htim: TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  //BSP_LED_Toggle(LED4);
+  printf("TIM\r\n");
 }
 
 /**

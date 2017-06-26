@@ -125,6 +125,18 @@
 #define I2Cx_SDA_GPIO_PORT               GPIOB
 #define I2Cx_SDA_AF                      GPIO_AF4_I2C2
 
+
+/* User can use this section to tailor TIMx instance used and associated
+   resources */
+/* Definition for TIMx clock resources */
+#define TIMx                           TIM3
+#define TIMx_CLK_ENABLE                __HAL_RCC_TIM3_CLK_ENABLE
+
+/* Definition for TIMx's NVIC */
+#define TIMx_IRQn                      TIM3_IRQn
+#define TIMx_IRQHandler                TIM3_IRQHandler
+
+
 /* Exported macro ------------------------------------------------------------*/
 #define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 
